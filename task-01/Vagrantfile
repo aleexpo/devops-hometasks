@@ -81,10 +81,10 @@ Vagrant.configure("2") do |config|
      #cp /vagrant/000-defaultphp.conf /etc/apache2/sites-available
      #cp /vagrant/ports.conf /etc/apache2/
 
-     wget -P /var/www/html https://github.com/aleexpo/devops-hometasks/blob/main/task-01/index.html
-     wget -P /var/www/php https://github.com/aleexpo/devops-hometasks/blob/main/task-01/index.php
-     wget -P /etc/apache2/sites-available https://github.com/aleexpo/devops-hometasks/blob/main/task-01/000-defaultphp.conf
-     wget -P /etc/apache2/ https://github.com/aleexpo/devops-hometasks/blob/main/task-01/ports.conf
+     wget -P -O /var/www/html https://github.com/aleexpo/devops-hometasks/blob/main/task-01/index.html
+     wget -P -O /var/www/php https://github.com/aleexpo/devops-hometasks/blob/main/task-01/index.php
+     wget -P -O /etc/apache2/sites-available https://github.com/aleexpo/devops-hometasks/blob/main/task-01/000-defaultphp.conf
+     wget -P -O /etc/apache2/ https://github.com/aleexpo/devops-hometasks/blob/main/task-01/ports.conf
 
      a2ensite 000-defaultphp.conf
 
