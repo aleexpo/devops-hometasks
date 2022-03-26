@@ -1,0 +1,93 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+
+Vagrant.configure("2") do |config|
+ 
+  config.vm.box = "aleexpo-debian10-arm64"
+
+  config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 81, host: 8081, host_ip: "127.0.0.1"
+
+ 
+   config.vm.provider "vmware_desktop" do |vb|
+   #Customize the amount of memory on the VM:
+     vb.memory = "1024"
+   end
+  
+   config.vm.provision "shell", inline: <<-SHELL
+     apt-get update
+     apt-get remove gnupg
+     apt-get install --reinstall gnupg2 -y
+     apt-get install -y lxc
+     apt-get install -y dirmngr
+     
+     mkdir -p /home/vagrant/.config/lxc/
+     wget -O /etc/lxc/default.conf https://raw.githubusercontent.com/aleexpo/devops-hometasks/main/task-02/default.conf
+     wget -P /home/vagrant/.config/lxc/ https://raw.githubusercontent.com/aleexpo/devops-hometasks/main/task-02/root.conf
+     wget -P /etc/lxc/ https://raw.githubusercontent.com/aleexpo/devops-hometasks/main/task-02/lxc-usernet
+     wget -P /etc/default/ https://raw.githubusercontent.com/aleexpo/devops-hometasks/main/task-02/lxc-net
+     systemctl enable lxc-net
+     systemctl enable lxc
+     
+     sudo su
+     export DOWNLOAD_KEYSERVER="hkp://keyserver.ubuntu.com"
+     lxc-create -t download -n r1 -f /home/vagrant/.config/lxc/root.conf -- --dist centos --release 7 --arch arm64 
+     lxc-create -t download -n r2 -f /home/vagrant/.config/lxc/root.conf -- --dist centos --release 7 --arch arm64
+     sudo echo "lxc.net.0.ipv4.address = 10.0.3.20/24">>/var/lib/lxc/r1/config
+     sudo echo "lxc.net.0.ipv4.address = 10.0.3.30/24">>/var/lib/lxc/r2/config
+     sudo echo "lxc.net.0.ipv4.gateway = 10.0.3.1">>/var/lib/lxc/r1/config
+     sudo echo "lxc.net.0.ipv4.gateway = 10.0.3.1">>/var/lib/lxc/r2/config 
+ 
+     systemctl restart lxc
+     systemctl start lxc-net
+     sleep 15s
+     #sudo lxc-attach r1 --export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
+     #sleep 15s
+     lxc-attach -n r1 -- yum update
+     lxc-attach -n r2 -- yum update
+     lxc-attach -n r1 -- yum install httpd -y
+     lxc-attach -n r2 -- yum install httpd -y
+     lxc-attach -n r2 -- yum install mariadb-server mariadb -y
+     lxc-attach -n r1 -- yum install wget -y
+     lxc-attach -n r2 -- yum install wget -y
+     lxc-attach -n r1 -- systemctl start httpd
+     lxc-attach -n r2 -- systemctl start httpd
+     lxc-attach -n r1 -- systemctl enable httpd.service
+     lxc-attach -n r2 -- systemctl enable httpd.service
+     lxc-attach -n r2 -- systemctl start mariadb
+     lxc-attach -n r2 -- yum install php php-mysql -y
+     iptables -t nat -A PREROUTING -p tcp -i enp1s1 --dport 80 -j DNAT --to-destination 10.0.3.20
+     iptables -t nat -A PREROUTING -p tcp -i enp1s1 --dport 81 -j DNAT --to-destination 10.0.3.30
+     lxc-attach -n r1 -- sudo mkdir -p /var/www/site/html
+     lxc-attach -n r2 -- sudo mkdir -p /var/www/site/php
+     lxc-attach -n r1 -- sudo chmod 775 /var/www/site/html
+     lxc-attach -n r2 -- sudo chmod 775 /var/www/site/php
+     lxc-attach -n r1 -- sudo chown -R apache:apache /var/www/site/html
+     lxc-attach -n r2 -- sudo chown -R apache:apache /var/www/site/php
+     lxc-attach -n r1 -- sudo mkdir /var/www/site/html/log
+     lxc-attach -n r2 -- sudo mkdir /var/www/site/php/log
+     lxc-attach -n r1 -- sudo chmod 775 /var/www/site/html/log
+     lxc-attach -n r2 -- sudo chmod 775 /var/www/site/php/log
+     lxc-attach -n r1 -- sudo chown -R apache:apache /var/www/site/html/log
+     lxc-attach -n r2 -- sudo chown -R apache:apache /var/www/site/php/log
+     lxc-attach -n r1 -- sudo mkdir /etc/httpd/sites-available /etc/httpd/sites-enabled
+     lxc-attach -n r2 -- sudo mkdir /etc/httpd/sites-available /etc/httpd/sites-enabled
+     lxc-attach -n r2 -- wget -O /etc/httpd/conf/httpd.conf https://raw.githubusercontent.com/aleexpo/devops-hometasks/main/task-02/httpd.conf
+     lxc-attach -n r1 -- wget -O /etc/httpd/conf/httpd.conf https://raw.githubusercontent.com/aleexpo/devops-hometasks/main/task-02/httpd1.conf
+     lxc-attach -n r1 -- wget -P /var/www/site/html https://raw.githubusercontent.com/aleexpo/devops-hometasks/main/task-02/index.html
+     lxc-attach -n r2 -- wget -P /var/www/site/php https://raw.githubusercontent.com/aleexpo/devops-hometasks/main/task-02/index.php
+     lxc-attach -n r1 -- wget -P /etc/httpd/sites-available/ https://raw.githubusercontent.com/aleexpo/devops-hometasks/main/task-02/http.conf
+     lxc-attach -n r2 -- wget -P /etc/httpd/sites-available/ https://raw.githubusercontent.com/aleexpo/devops-hometasks/main/task-02/php.conf
+     lxc-attach -n r1 -- ln -s /etc/httpd/sites-available/http.conf /etc/httpd/sites-enabled/http.conf
+     lxc-attach -n r2 -- ln -s /etc/httpd/sites-available/php.conf /etc/httpd/sites-enabled/php.conf
+     #lxc-attach -n r1 -- echo "IncludeOptional sites-enabled/*.conf" >> /etc/httpd/conf/httpd.conf
+     #lxc-attach -n r2 -- echo "IncludeOptional sites-enabled/*.conf" >> /etc/httpd/conf/httpd.conf
+     lxc-attach -n r1 -- systemctl restart httpd
+     lxc-attach -n r2 -- systemctl restart httpd
+     
+
+
+
+   SHELL
+end
