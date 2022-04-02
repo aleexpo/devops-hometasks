@@ -1,0 +1,32 @@
+- name: vm1
+  hosts: all
+  
+  
+  tasks:
+
+    - name: install packages
+      apt:
+       pkg:
+       - apache2
+       - php
+       - libapache2-mod-php
+       - php-mysql
+       - mariadb-server
+       state: present
+
+    - name: copy playbook
+      copy:
+        src: /vagrant/playbook.yaml
+        dest: /home/vagrant/playbook.yaml
+
+    - name: copy templates
+      copy:
+        src: /vagrant/templates
+        dest: /home/vagrant/
+
+    - name: play playbook
+      shell: ansible-playbook /home/vagrant/playbook.yaml | sed 's/\x1B\[[0-9;]\+[A-Za-z]//g'
+      register: playbook_output
+      changed_when: playbook_output.stdout_lines[-1] is regex("\schanged=[1-9]\d*\s")
+
+

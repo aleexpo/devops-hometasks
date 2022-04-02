@@ -1,0 +1,78 @@
+- name: vm1
+  hosts: localhost
+  
+  
+  tasks:
+
+    - name: create dynamic conf
+      become: yes
+      file: 
+         path: /etc/apache2/sites-available/dynamic.conf
+         state: touch
+         owner: vagrant
+         group: vagrant
+         mode: 0777
+
+    - name: create directory
+      become: yes
+      file: 
+       path: /var/www/php
+       state: directory
+       owner: vagrant
+       group: vagrant
+       mode: 0777
+    
+    - name: create dynamicpage
+      become: yes
+      file: 
+       path: /var/www/php/index.php
+       state: touch
+       owner: vagrant
+       group: vagrant
+       mode: 0777
+
+    - name: site static conf change
+      become: yes
+      template:
+       src: /home/vagrant/templates/static.j2
+       dest: /etc/apache2/sites-available/000-default.conf 
+
+    - name: site dynamic conf
+      become: yes
+      template:
+        src: /home/vagrant/templates/dynamic.j2
+        dest: /etc/apache2/sites-available/dynamic.conf
+
+    - name: template page for static site
+      template: 
+       src: /home/vagrant/templates/staticpage.j2
+       dest: /var/www/html/index.html
+
+    - name: template page for dynamic site
+      template: 
+       src: /home/vagrant/templates/dynamicpage.j2
+       dest: /var/www/php/index.php
+
+    - name: add port
+      become: yes
+      lineinfile:
+        dest: /etc/apache2/ports.conf
+        regexp: '^'
+        line: 'Listen 81'
+        insertafter: EOF
+        backup: yes
+
+    - name: Activates our virtualhost
+      command: a2ensite dynamic.conf
+
+    - name: Reload Apache
+      become: yes
+      service:
+        name: apache2
+        state: reloaded
+
+    - name: Restart Apache
+      become: yes
+      service:
+        name: apache2
+        state: restarted
