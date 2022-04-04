@@ -98,9 +98,20 @@
        state: started
        container_command: |
         sleep 15
+        yum update
         yum install httpd -y
+        yum install mariadb-server -y
+        yum install mariadb -y
+        yum install php-fpm
         yum install php -y
         yum install php-mysql -y
+        yum install php-mbstring -y  
+        yum install php-mcrypt -y
+        yum install php-devel -y
+        yum install php-xml -y
+        yum install php-gd -y
+
+
         systemctl enable httpd
 
     - name: create directory
@@ -237,13 +248,16 @@
         ln -s /etc/httpd/sites-available/static.conf /etc/httpd/sites-enabled/http.conf
         systemctl start httpd
         systemctl restart httpd
-
+        
     - name: minor changes dynamic lxc
       lxc_container:
        name: dynamic
        state: started
        container_command: |
         ln -s /etc/httpd/sites-available/dynamic.conf /etc/httpd/sites-enabled/http.conf
+        systemctl start mariadb
         systemctl start httpd
         systemctl restart httpd
+        systemctl enable httpd.service
+
 
