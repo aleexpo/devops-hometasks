@@ -27,7 +27,7 @@
   - name: get the ppsrvconf
     become: yes
     shell: |
-     wget -O /etc/default/puppetserver https://raw.githubusercontent.com/aleexpo/puppet-server-repo/production/templates/puppetserver 
+     wget -O /etc/default/puppetserver https://raw.githubusercontent.com/aleexpo/devops-hometasks/main/task-04/templates/puppetserver
 
   - name: changes puppet.conf
     become: yes
@@ -73,7 +73,7 @@
   - name: get the r10k.yaml
     become: yes
     shell: |
-     wget -P /etc/puppetlabs/r10k/ https://raw.githubusercontent.com/aleexpo/puppet-server-repo/production/templates/r10k.yaml 
+     wget -P /etc/puppetlabs/r10k/ https://raw.githubusercontent.com/aleexpo/devops-hometasks/main/task-04/templates/r10k.yaml 
      
 #configuring slave machines
      
