@@ -1,0 +1,32 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "generic/debian10"
+
+  config.vm.define "slave1" do |node|
+    node.vm.network "private_network", ip: "192.168.56.9"
+  end
+
+  config.vm.define "slave2" do |node|
+    node.vm.network "private_network", ip: "192.168.56.10"
+  end
+
+  config.vm.define "master.puppet" do |node|
+    node.vm.network "private_network", ip: "192.168.56.11"
+    
+
+    node.vm.provision :file, source: '.vagrant/machines/slave1/virtualbox/private_key', destination: '/vagrant/private_key_slave1'
+    node.vm.provision :file, source: '.vagrant/machines/slave2/virtualbox/private_key', destination: '/vagrant/private_key_slave2'
+    node.vm.provision :file, source: 'inventory/hosts', destination: 'inventory/hosts'
+
+    config.vm.synced_folder ".", "/vagrant"
+
+    node.vm.provision :ansible_local do |ansible|
+
+      ansible.playbook          = "playbook.yaml"
+      ansible.inventory_path = "inventory/hosts"  
+      ansible.limit = "all"
+    end
+  end
+end
