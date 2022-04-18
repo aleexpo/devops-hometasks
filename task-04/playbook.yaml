@@ -20,12 +20,14 @@
      pkg:
      - puppetserver
      - r10k
+     - puppet-agent
      state: present
      update_cache: yes
 
   - name: get the ppsrvconf
     become: yes
     get_url:
+      force: yes
       url: https://raw.githubusercontent.com/aleexpo/devops-hometasks/main/task-04/templates/puppetserver
       dest: /etc/default/puppetserver   
   
@@ -42,6 +44,9 @@
       environment = production
       [master]
       dns_alt_names = master.puppet
+      [agent]
+      server = master.puppet
+      runinterval = 1m
   
   - name: ip addresses add in hosts
     become: yes
@@ -57,12 +62,20 @@
     service:
       name: puppetserver
       state: started
+
+  - name: enable puppetagent
+    become: yes
+    service:
+     name: puppet
+     enabled: yes         
   
   - name: enable puppetserver
     become: yes
     service:
        name: puppetserver
        enabled: yes
+  
+
   
   - name: create directory
     become: yes
@@ -75,6 +88,20 @@
     get_url:
       url: https://raw.githubusercontent.com/aleexpo/devops-hometasks/main/task-04/templates/r10k.yaml
       dest: /etc/puppetlabs/r10k/   
+
+  #- name: auto deploy environment(cron)
+  #  ansible.builtin.cron:
+  #   name: "deploy environment"
+  #   minute: "/1"
+  #   hour: "*"
+  #   job: "sudo r10k deploy environment -p"
+
+  #   - name: agent work start(cron)
+  #  ansible.builtin.cron:
+  #   name: "start agent"
+  #   minute: "/1"
+  #   hour: "*"
+  #   job: "sudo /opt/puppetlabs/bin/puppet agent -t"
   
   #configuring slave machines
      
@@ -126,3 +153,10 @@
     service:
      name: puppet
      enabled: yes     
+
+#     - name: agent work start
+#    ansible.builtin.cron:
+#     name: "start agent"
+#     minute: "/1"
+#     hour: "*"
+#     job: "sudo /opt/puppetlabs/bin/puppet agent -t"
