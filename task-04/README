@@ -3,3 +3,5 @@
 sudo r10k deploy environment -p
 
 sudo /opt/puppetlabs/bin/puppet agent -t
+
+sudo systemctl status minecraft.service
