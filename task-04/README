@@ -1,0 +1,5 @@
+Команды для копи-паста, чтобы не печатать вручную)
+
+sudo r10k deploy environment -p
+
+sudo /opt/puppetlabs/bin/puppet agent -t
