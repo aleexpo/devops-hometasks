@@ -60,8 +60,14 @@
   - name: start puppet server
     become: yes
     service:
-      name: puppetserver
-      state: started
+     name: puppetserver
+     state: started
+
+  - name: start puppet agent
+    become: yes
+    service:
+     name: puppet
+     state: started    
 
   - name: enable puppetagent
     become: yes
@@ -72,37 +78,28 @@
   - name: enable puppetserver
     become: yes
     service:
-       name: puppetserver
-       enabled: yes
-  
-
+     name: puppetserver
+     enabled: yes
   
   - name: create directory
     become: yes
     file: 
-      path: /etc/puppetlabs/r10k/
-      state: directory
+     path: /etc/puppetlabs/r10k/
+     state: directory
   
   - name: get the r10k.yaml
     become: yes
     get_url:
-      url: https://raw.githubusercontent.com/aleexpo/devops-hometasks/main/task-04/templates/r10k.yaml
-      dest: /etc/puppetlabs/r10k/   
+     url: https://raw.githubusercontent.com/aleexpo/devops-hometasks/main/task-04/templates/r10k.yaml
+     dest: /etc/puppetlabs/r10k/   
 
-  #- name: auto deploy environment(cron)
-  #  ansible.builtin.cron:
-  #   name: "deploy environment"
-  #   minute: "/1"
-  #   hour: "*"
-  #   job: "sudo r10k deploy environment -p"
+  - name: auto deploy environment(cron)
+    cron:
+     name: "deploy environment"
+     minute: "0-59"
+     hour: "*"
+     job: "sudo r10k deploy environment -p"
 
-  #   - name: agent work start(cron)
-  #  ansible.builtin.cron:
-  #   name: "start agent"
-  #   minute: "/1"
-  #   hour: "*"
-  #   job: "sudo /opt/puppetlabs/bin/puppet agent -t"
-  
   #configuring slave machines
      
 - hosts: slaves, mineserver
@@ -154,10 +151,3 @@
     service:
      name: puppet
      enabled: yes     
-
-#     - name: agent work start
-#    ansible.builtin.cron:
-#     name: "start agent"
-#     minute: "/1"
-#     hour: "*"
-#     job: "sudo /opt/puppetlabs/bin/puppet agent -t"
