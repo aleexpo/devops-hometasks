@@ -1,0 +1,48 @@
+  - name: task-06
+    hosts: all
+    tasks:
+    
+  - hosts: jenkins.vm
+    become: yes
+    roles:
+      - jenkins
+  
+  
+ 
+ 
+ 
+
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+    

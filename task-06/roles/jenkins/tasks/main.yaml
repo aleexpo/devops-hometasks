@@ -1,0 +1,97 @@
+- name: required pckgs install
+  apt:
+   pkg:
+    - curl
+    - apt-transport-https
+    - gnupg
+    - git
+    - build-essential
+    - default-jre
+    - python3-pip
+   state: latest
+
+- name: install python-jenkins with pip
+  pip:
+   name:
+   - python-jenkins
+   - lxml
+
+- name: Add Jenkins apt repository key
+  apt_key:
+   url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+   state: present
+
+- name: Add Jenkins apt repository
+  apt_repository:
+   repo: deb https://pkg.jenkins.io/debian-stable binary/
+   #state: present
+   update_cache: true
+   
+- name: Install Jenkins
+  apt:
+   pkg:
+   - jenkins
+   state: present
+   
+- name: stop Jenkins
+  become: yes
+  service:
+    name: jenkins
+    state: stopped
+    enabled: yes 
+
+- name: create folder for file
+  file: 
+    path: /var/lib/jenkins/users/admin_2763361954643936903
+    state: directory
+   
+
+- name: Copy multiple files to multiple directories
+  copy: src={{ item.0 }} dest={{ item.1 }}
+  with_together:
+    - [ '/etc/default/jenkins', 'config.xml', 'golang.xml', 'org.jenkinsci.plugins.golang.GolangBuildWrapper.xml' ]
+    - [ '/etc/default/jenkins', '/var/lib/jenkins/', '/var/lib/jenkins/', '/var/lib/jenkins/org.jenkinsci.plugins.golang.GolangBuildWrapper.xml']
+
+- name: Copy multiple files to multiple directories(так и не понял почему, но не копировались эти же файлы, с этими же директориями именно в таске, который выше. Создал такой же таск, только с этими файлами и все скопировалось. хз)
+  copy: src={{ item.0 }} dest={{ item.1 }}
+  with_together:
+    - [ '/vagrant/roles/jenkins/files/users/' ]
+    - [ '/var/lib/jenkins/users/' ]
+
+ #Plugins install
+
+- name: rm file
+  file: 
+   path: /var/lib/jenkins/secrets/initialAdminPassword
+   state: absent
+
+- name: Change directory permissions
+  file:
+   path: /var/lib/jenkins/users
+   state: directory
+   owner: jenkins
+   group: jenkins
+   mode: '700'
+
+- name: Change file permissions
+  file:
+   path: /var/lib/jenkins/users/users.xml
+   owner: jenkins
+   group: jenkins
+   mode: '0644'
+
+- name: start Jenkins
+  become: yes
+  service:
+    name: jenkins
+    state: started
+  
+ #Install plugins
+- include_tasks: plugins.yaml
+
+ #Build the project
+- include_tasks: build.yaml
+  
+
+
+
