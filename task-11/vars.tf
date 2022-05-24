@@ -17,7 +17,8 @@ variable "files" {
     "resource_git.tf" ,
     "static_dep.tf" ,
     "terraform.tfvars" ,
-    "vars.tf"
+    "vars.tf",
+    "static_LB.tf"
   ]
   
 }
