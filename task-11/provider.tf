@@ -5,13 +5,12 @@ terraform {
     }
     github = {
       source = "integrations/github"
-      version = "4.2.0"
+      version = "~> 4.0"
     }
   }
 }
 provider "github" {
-  token = "${var.token}"
-  owner = "aleexpo"
+  token = var.token
 }
 
 
