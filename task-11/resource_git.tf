@@ -1,10 +1,3 @@
-#resource "github_repository" "test" {
-#    name= "test"
-#    auto_init = true
-#    visibility = "public"
-#  
-#}
-
 resource "github_repository_file" "tests" {
     count = length(var.files)
     repository = "devops-hometasks"
