@@ -1,7 +1,0 @@
-image_name = "alexpoo/task-10"
-replicas_count = "3"
-container_name = "static-site"
-app_name = "static-site"
-service_name = "static-site-loadbalancer"
-deployment_name = "static-deployment"
-token = "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"
