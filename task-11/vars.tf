@@ -8,6 +8,7 @@ variable "app_name" {}
 variable "service_name" {}
 variable "deployment_name" {}
 variable "token" {}
+variable "node_port" {}
 variable "path" {
   default = "/vagrant/terraform"
 }
