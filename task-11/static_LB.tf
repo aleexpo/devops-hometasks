@@ -22,6 +22,7 @@ resource "kubernetes_service" "static-site-loadbalancer" {
   spec {
     selector = {
       app = var.app_name
+      cluster_ip = "10.101.7.86"
     }
     session_affinity = "ClientIP"
 
@@ -31,6 +32,6 @@ resource "kubernetes_service" "static-site-loadbalancer" {
     }
 
     type = "LoadBalancer"
-    external_traffic_policy = "Local"
+    external_ips = [ "10.101.7.86" ]
   }
 }
