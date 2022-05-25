@@ -31,5 +31,6 @@ resource "kubernetes_service" "static-site-loadbalancer" {
     }
 
     type = "LoadBalancer"
+    external_traffic_policy = "Local"
   }
 }
