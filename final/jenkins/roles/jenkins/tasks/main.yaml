@@ -1,0 +1,140 @@
+- name: required pckgs install
+  apt:
+   pkg:
+    - curl
+    - apt-transport-https
+    - gnupg
+    - git
+    - psmisc
+    - build-essential
+    - default-jre
+    - python3-pip
+    - python3-apt
+    - net-tools
+    - sysvinit-core
+    - htop
+   state: latest
+
+- name: install python-jenkins with pip
+  pip:
+   name:
+   - python-jenkins
+   - lxml
+
+- name: Add Jenkins apt repository key
+  apt_key:
+   url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+   state: present
+
+- name: Add Jenkins apt repository
+  apt_repository:
+   repo: deb https://pkg.jenkins.io/debian-stable binary/
+   #state: present
+   update_cache: true
+   
+- name: Install Jenkins
+  apt:
+   pkg:
+   - jenkins
+   state: latest
+
+- name: Copy multiple files to multiple directories
+  copy: src={{ item.0 }} dest={{ item.1 }}
+  with_together:
+    - [ '/root/roles/jenkins/files/users/', '/root/roles/jenkins/files/credentials.xml' ]
+    - [ '/var/lib/jenkins/users/', '/var/lib/jenkins/credentials.xml' ]
+
+- name: Setup Wizard disable 
+  lineinfile:
+    path: /etc/default/jenkins
+    line: 'JAVA_ARGS="-Djenkins.install.runSetupWizard=false"'
+    state: present    
+
+
+- name: Change directory permissions
+  file:
+   path: /var/lib/jenkins/users
+   state: directory
+   owner: jenkins
+   group: jenkins
+   mode: '700'
+
+- name: Change file permissions
+  file:
+   path: /var/lib/jenkins/users/users.xml
+   owner: jenkins
+   group: jenkins
+   mode: '0644'
+
+- name: Change file permissions
+  file:
+   path: /var/lib/jenkins/credentials.xml
+   owner: jenkins
+   group: jenkins
+   mode: '0644'
+
+- name: rm file
+  file: 
+   path: /var/lib/jenkins/secrets/initialAdminPassword
+   state: absent
+
+- name: mkdir for job
+  file:
+    path: /var/lib/jenkins/jobs/final/
+    state: directory
+    owner: jenkins
+    group: jenkins
+
+- name: Copy job xml
+  copy: 
+    src: "/root/roles/jenkins/files/jobs/final/config.xml" 
+    dest: "/var/lib/jenkins/jobs/final/"  
+    group: jenkins
+    owner: jenkins
+  
+- name: start Jenkins
+  become: yes
+  sysvinit:
+    name: jenkins
+    state: started  
+
+- name: Wait for Jenkins to start up before proceeding.
+  uri:
+    url: "http://localhost:8080"
+    method: GET
+    return_content: "yes"
+    timeout: 5
+    body_format: raw
+    follow_redirects: "no"
+    status_code: 200,403
+  register: result
+  until: (result.status == 403 or result.status == 200) and (result.content.find("Please wait while") == -1)
+  retries: 60
+  delay: 5
+  changed_when: false
+  check_mode: false
+
+- name: Copy templates
+  template:
+    src: "{{ item }}"
+    dest: /var/lib/jenkins
+    owner: jenkins
+    group: jenkins
+  loop: 
+  - /root/roles/jenkins/files/config.xml
+
+
+- name: community.general install
+  shell: ansible-galaxy collection install community.general
+
+ #Install plugins
+- include_tasks: plugins.yaml
+
+ #Build the project
+#- include_tasks: build.yaml
+
+
+
+
+
+

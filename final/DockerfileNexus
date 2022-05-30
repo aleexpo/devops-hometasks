@@ -1,0 +1,7 @@
+FROM debian:buster
+RUN apt-get update && apt-get install -y ansible
+WORKDIR /root/
+COPY ./nexus/ /root/
+EXPOSE 8081
+RUN ansible-playbook playbook.yaml
+CMD ["/opt/nexus-3.39.0-01/bin/nexus", "run"]
