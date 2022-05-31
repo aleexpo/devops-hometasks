@@ -1,6 +1,5 @@
 - name: Install plugins for jenkins
   community.general.jenkins_plugin:
-    #jenkins_home: /var/lib/jenkins
     name: "{{ item }}"
     timeout: 180
     url_username: admin
@@ -8,7 +7,6 @@
     url: http://localhost:8080
     with_dependencies: yes
     state: present
-    #use_proxy: no
     updates_url: https://gruenehoelle.nl
   loop:
    - nexus-artifact-uploader
