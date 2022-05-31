@@ -123,10 +123,6 @@
   loop: 
   - /root/roles/jenkins/files/config.xml
 
-#- name: copy jenkins-cli for start a job without web-interface
-#    copy:
-#    path: /root/roles/jenkins/files/jenkins-cli.jar
-#    dest: /var/lib/jenkins
 
 - name: community.general install
   shell: ansible-galaxy collection install community.general
