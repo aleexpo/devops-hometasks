@@ -13,9 +13,6 @@ services:
     ports:
       - 8080:8080
     network_mode: host
-    #networks:
-    #  test: 
-    #    ipv4_address: 192.168.56.3
     container_name: jenkins
 
 
@@ -26,17 +23,8 @@ services:
     ports:
       - 8081:8081
     network_mode: host
-    #networks:
-    #  test: 
-    #   ipv4_address: 192.168.56.2
     image: nexus
     container_name: nexus
 
-#networks:
-# test:
-#  driver: bridge
-#  ipam:
-#    config:
-#     - subnet: 192.168.56.0/24
 volumes:
   workspace:
