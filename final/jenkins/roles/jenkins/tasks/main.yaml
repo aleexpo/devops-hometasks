@@ -123,24 +123,16 @@
   loop: 
   - /root/roles/jenkins/files/config.xml
 
+#- name: copy jenkins-cli for start a job without web-interface
+#    copy:
+#    path: /root/roles/jenkins/files/jenkins-cli.jar
+#    dest: /var/lib/jenkins
 
 - name: community.general install
   shell: ansible-galaxy collection install community.general
 
  #Install plugins
 - include_tasks: plugins.yaml
-
- #Build the project
-#- name: Create a jenkins build 
-#  community.general.jenkins_build:
-#    name: "final"
-#    build_number: 1
-#    state: present
-#    user: admin
-#    password: 1239
-#    url: http://localhost:8080
-
-#- include_tasks: build.yaml
 
 
 

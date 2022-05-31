@@ -1,9 +1,6 @@
   - name: task-06
     hosts: localhost
     roles:
-      #- geerlingguy.java
       - jenkins
-
-  
  
   
