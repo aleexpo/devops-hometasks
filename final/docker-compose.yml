@@ -6,6 +6,7 @@ services:
       context: .
       dockerfile: DockerfileJenkins
     image: jenkins
+    privileged: true
     volumes:
      - /var/run/docker.sock:/var/run/docker.sock
      - workspace:/var/lib/jenkins/workspace/

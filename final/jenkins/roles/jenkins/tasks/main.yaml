@@ -131,6 +131,15 @@
 - include_tasks: plugins.yaml
 
  #Build the project
+#- name: Create a jenkins build 
+#  community.general.jenkins_build:
+#    name: "final"
+#    build_number: 1
+#    state: present
+#    user: admin
+#    password: 1239
+#    url: http://localhost:8080
+
 #- include_tasks: build.yaml
 
 

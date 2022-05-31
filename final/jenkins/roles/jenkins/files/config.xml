@@ -2,7 +2,7 @@
 <hudson>
   <disabledAdministrativeMonitors/>
   <version>2.332.3</version>
-  <numExecutors>2</numExecutors>
+  <numExecutors>5</numExecutors>
   <mode>NORMAL</mode>
   <useSecurity>true</useSecurity>
   <authorizationStrategy class="hudson.security.AuthorizationStrategy$Unsecured"/>
@@ -24,9 +24,8 @@
           <connector class="io.jenkins.docker.connector.DockerComputerAttachConnector">
             <user>jenkins</user>
           </connector>
-          <remoteFs>/var/lib/jenkins/workspace/</remoteFs>
           <instanceCap>2147483647</instanceCap>
-          <mode>NORMAL</mode>
+          <mode>EXCLUSIVE</mode>
           <retentionStrategy class="com.nirima.jenkins.plugins.docker.strategy.DockerOnceRetentionStrategy">
             <idleMinutes>10</idleMinutes>
           </retentionStrategy>
@@ -54,7 +53,7 @@
         <connectTimeout>60</connectTimeout>
         <readTimeout>60</readTimeout>
       </dockerApi>
-      <containerCap>2</containerCap>
+      <containerCap>5</containerCap>
       <exposeDockerHost>false</exposeDockerHost>
       <disabled>
         <disabledByChoice>false</disabledByChoice>
@@ -77,4 +76,4 @@
   <nodeProperties/>
   <globalNodeProperties/>
   <nodeRenameMigrationNeeded>false</nodeRenameMigrationNeeded>
-</hudson>
+</hudson>r
