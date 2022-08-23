@@ -60,4 +60,4 @@ sudo systemctl status minecraft.service
 
 ----
 
-**I will end of FAQ in august 30.
+**I will end of FAQ in august 30**
