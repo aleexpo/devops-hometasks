@@ -58,4 +58,6 @@ sudo /opt/puppetlabs/bin/puppet agent -t
 
 sudo systemctl status minecraft.service
 
+----
 
+I will end of FAQ in august 30.
